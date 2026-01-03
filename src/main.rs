@@ -19,7 +19,12 @@ fn main() {
 
     let trade = book.try_match_once();
 
+
+    let trade2 = book.try_match_once();
+
     println!("trade result: {:?}", trade);
+    println!("trade result: {:?}", trade2);
+
 
     // println!("after trade: {:?} {:?}", buy, sell)
 

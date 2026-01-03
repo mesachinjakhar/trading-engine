@@ -53,11 +53,15 @@ impl OrderBook {
     // }
 
     pub fn try_match_once(&mut self) -> Option<Trade> {
-        let buy = self.buys.values_mut().next()?;
-        let sell = self.sells.values_mut().next()?;
+
+        let buy_id = *self.buys.keys().next()?;
+        let sell_id = *self.sells.keys().next()?;
+
+        let buy = self.buys.get_mut(&buy_id)?;
+        let sell = self.sells.get_mut(&sell_id)?;
 
         if buy.price >= sell.price {
-            let buy_result  = buy.fill();
+            buy.fill().ok()?;
             sell.fill().ok()?;
 
             let trade = Trade {
@@ -66,6 +70,11 @@ impl OrderBook {
                 price: sell.price,
                 quantity: buy.quantity.min(sell.quantity)
             };
+
+
+            // cleanup
+            self.buys.remove(&buy_id);
+            self.sells.remove(&sell_id);
 
             return Some(trade);
         }
