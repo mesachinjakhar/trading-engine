@@ -8,8 +8,11 @@ fn main() {
 
     let mut book = OrderBook::new();
 
-    let buy = Order::new(1, Side::Buy, 100, 10);
-    let sell = Order::new(2, Side::Sell, 90, 5);
+    let mut buy = Order::new(1, Side::Buy, 100, 10);
+    let mut  sell = Order::new(2, Side::Sell, 90, 5);
+
+    buy.accept().unwrap();
+    sell.accept().unwrap();
 
     book.add_order(buy).unwrap();
     book.add_order(sell).unwrap();
@@ -17,6 +20,8 @@ fn main() {
     let trade = book.try_match_once();
 
     println!("trade result: {:?}", trade);
+
+    // println!("after trade: {:?} {:?}", buy, sell)
 
 
 }

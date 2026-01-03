@@ -32,11 +32,20 @@ impl OrderBook {
         Ok(())
     }
 
-    // pub fn accept_order(&mut self, order_id: u64) -> Result<(), &'static str> {
-    //     let order = self.orders.get_mut(&order_id).ok_or("Order not found")?;
+    pub fn accept_order(&mut self, order_id: u64) -> Result<(), &'static str> {
+        let is_buy = self.buys.get_mut(&order_id);
+        let is_sell = self.sells.get_mut(&order_id);
 
-    //     order.accept()
-    // }
+        if let Some(mut order) = is_buy {
+            order.accept().unwrap()
+        }
+        if let Some(mut order) = is_sell {
+            order.accept().unwrap()
+        }
+
+        return Err("No orders found with given id")
+
+    }
 
     // pub fn cancel_order(&mut self, order_id: u64) -> Result<(), &'static str> {
     //     let order = self.orders.get_mut(&order_id).ok_or("order not found")?;
@@ -48,7 +57,7 @@ impl OrderBook {
         let sell = self.sells.values_mut().next()?;
 
         if buy.price >= sell.price {
-            buy.fill().ok()?;
+            let buy_result  = buy.fill();
             sell.fill().ok()?;
 
             let trade = Trade {
