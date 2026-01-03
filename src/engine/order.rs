@@ -9,8 +9,10 @@ pub enum OrderState {
     Created,
     Accepted,
     Filled,
+    PartiallyFilled,
     Cancelled,
     Rejected,
+
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -19,7 +21,8 @@ pub struct Order {
     pub side: Side,
     pub price: u64,
     pub quantity: u64,
-    pub state: OrderState
+    pub state: OrderState,
+    pub remaining: u64,
 }
 
 impl Order {
@@ -30,6 +33,7 @@ impl Order {
             price,
             quantity,
             state: OrderState::Created,
+            remaining: quantity
         }
     }
 
@@ -50,6 +54,28 @@ impl Order {
         self.state = OrderState::Filled;
         Ok(())
     }
+
+    pub fn apply_fill(&mut self, qty: u64) -> Result<(), &'static str> {
+        if self.state != OrderState::Accepted && self.state != OrderState::PartiallyFilled {
+            return Err("Order not fillable in current state");
+        }
+
+        if qty > self.remaining {
+        return Err("Fill quantiy exceeds remaining");
+    }
+
+    self.remaining -= qty;
+
+    if self.remaining == 0 {
+        self.state = OrderState::Filled;
+    } else {
+        self.state = OrderState::PartiallyFilled;
+    }
+
+    Ok(())
+
+    }
+
 
     pub fn cancel(&mut self) -> Result<(), &'static str> {
         match self.state {

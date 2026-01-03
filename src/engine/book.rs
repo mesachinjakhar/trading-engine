@@ -60,25 +60,32 @@ impl OrderBook {
         let buy = self.buys.get_mut(&buy_id)?;
         let sell = self.sells.get_mut(&sell_id)?;
 
-        if buy.price >= sell.price {
-            buy.fill().ok()?;
-            sell.fill().ok()?;
+        if buy.price < sell.price {
+            return None;
+        }
+
+        let trade_qty = buy.remaining.min(sell.remaining);
+
+        buy.apply_fill(trade_qty).ok()?;
+        sell.apply_fill(trade_qty).ok()?;
 
             let trade = Trade {
                 buy_order_id: buy.id,
                 sell_order_id: sell.id, 
                 price: sell.price,
-                quantity: buy.quantity.min(sell.quantity)
+                quantity: trade_qty
             };
 
 
-            // cleanup
-            self.buys.remove(&buy_id);
-            self.sells.remove(&sell_id);
+            // cleanup only filled orders
+            if buy.state == OrderState::Filled { 
+                self.buys.remove(&buy_id);
+            }
+            if sell.state == OrderState::Filled {
+                self.sells.remove(&sell_id);
+            }
 
             return Some(trade);
-        }
-
-        None
+        
     }
 }
