@@ -54,8 +54,8 @@ impl OrderBook {
 
     pub fn try_match_once(&mut self) -> Option<Trade> {
 
-        let buy_id = *self.buys.keys().next()?;
-        let sell_id = *self.sells.keys().next()?;
+        let buy_id = self.best_buy_id()?;
+        let sell_id = self.best_sell_id()?;
 
         let buy = self.buys.get_mut(&buy_id)?;
         let sell = self.sells.get_mut(&sell_id)?;
@@ -88,4 +88,23 @@ impl OrderBook {
             return Some(trade);
         
     }
+
+
+    fn best_buy_id(&self) -> Option<u64> {
+        self.buys
+        .iter()
+        .max_by_key(|(_, order)| order.price)
+        .map(|(id,_)| *id)
+    }
+
+    fn best_sell_id(&self) -> Option<u64> {
+        self.sells
+        .iter()
+        .min_by_key(|(_, order)| order.price)
+        .map(|(id, _)| *id)
+    }
+
+
+
+
 }
