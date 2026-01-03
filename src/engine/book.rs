@@ -36,10 +36,10 @@ impl OrderBook {
         let is_buy = self.buys.get_mut(&order_id);
         let is_sell = self.sells.get_mut(&order_id);
 
-        if let Some(mut order) = is_buy {
+        if let Some(order) = is_buy {
             order.accept().unwrap()
         }
-        if let Some(mut order) = is_sell {
+        if let Some(order) = is_sell {
             order.accept().unwrap()
         }
 
