@@ -8,15 +8,15 @@ fn main() {
 
     let mut book = OrderBook::new();
 
-    let order1 = Order::new(1, Side::Buy, 100, 10);
-    let order2 = Order::new(2, Side::Sell, 105, 5);
+    let buy = Order::new(1, Side::Buy, 100, 10);
+    let sell = Order::new(2, Side::Sell, 90, 5);
 
-    book.add_order(order1).unwrap();
-    book.add_order(order2).unwrap();
+    book.add_order(buy).unwrap();
+    book.add_order(sell).unwrap();
 
-    book.accept_order(1).unwrap();
-    book.cancel_order(2).unwrap();
+    let trade = book.try_match_once();
 
-    println!("Orderbook test completed");
+    println!("trade result: {:?}", trade);
+
 
 }
