@@ -23,17 +23,19 @@ pub struct Order {
     pub quantity: u64,
     pub state: OrderState,
     pub remaining: u64,
+    pub seq: u64,
 }
 
 impl Order {
-    pub fn new(id: u64, side: Side, price: u64, quantity: u64) -> Self {
+    pub fn new(id: u64, side: Side, price: u64, quantity: u64, seq: u64) -> Self {
         Self {
             id, 
             side, 
             price,
             quantity,
             state: OrderState::Created,
-            remaining: quantity
+            remaining: quantity,
+            seq
         }
     }
 

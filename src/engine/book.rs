@@ -93,18 +93,24 @@ impl OrderBook {
     fn best_buy_id(&self) -> Option<u64> {
         self.buys
         .iter()
-        .max_by_key(|(_, order)| order.price)
-        .map(|(id,_)| *id)
+        .max_by(|(_, a), (_, b)| {
+            a.price
+            .cmp(&b.price)
+            .then_with(|| b.seq.cmp(&a.seq))
+        })
+        .map(|(id, _)| *id)
     }
 
     fn best_sell_id(&self) -> Option<u64> {
         self.sells
         .iter()
-        .min_by_key(|(_, order)| order.price)
+        .min_by(|(_, a), (_, b)| {
+            a.price
+            .cmp(&b.price)
+            .then_with(|| a.seq.cmp(&b.seq))
+        })
         .map(|(id, _)| *id)
     }
-
-
 
 
 }
