@@ -12,7 +12,6 @@ pub enum OrderState {
     PartiallyFilled,
     Cancelled,
     Rejected,
-
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -27,21 +26,21 @@ pub struct Order {
 }
 
 impl Order {
-    pub fn new(id: u64, side: Side, price: u64, quantity: u64, seq: u64) -> Self {
+    pub fn new(id: u64, side: Side, price: u64, quantity: u64) -> Self {
         Self {
-            id, 
-            side, 
+            id,
+            side,
             price,
             quantity,
             state: OrderState::Created,
             remaining: quantity,
-            seq
+            seq: 0,
         }
     }
 
     pub fn accept(&mut self) -> Result<(), &'static str> {
         if self.state != OrderState::Created {
-            return  Err("Only Created orders can be accepted");
+            return Err("Only Created orders can be accepted");
         }
 
         self.state = OrderState::Accepted;
@@ -63,21 +62,19 @@ impl Order {
         }
 
         if qty > self.remaining {
-        return Err("Fill quantiy exceeds remaining");
+            return Err("Fill quantiy exceeds remaining");
+        }
+
+        self.remaining -= qty;
+
+        if self.remaining == 0 {
+            self.state = OrderState::Filled;
+        } else {
+            self.state = OrderState::PartiallyFilled;
+        }
+
+        Ok(())
     }
-
-    self.remaining -= qty;
-
-    if self.remaining == 0 {
-        self.state = OrderState::Filled;
-    } else {
-        self.state = OrderState::PartiallyFilled;
-    }
-
-    Ok(())
-
-    }
-
 
     pub fn cancel(&mut self) -> Result<(), &'static str> {
         match self.state {
@@ -85,7 +82,7 @@ impl Order {
                 self.state = OrderState::Cancelled;
                 Ok(())
             }
-            _ => Err("Order cannot be cancelled in the current state")
+            _ => Err("Order cannot be cancelled in the current state"),
         }
     }
 
@@ -97,5 +94,4 @@ impl Order {
         self.state = OrderState::Rejected;
         Ok(())
     }
-
 }
